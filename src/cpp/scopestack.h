@@ -1,3 +1,8 @@
+/*!
+ *  Implementation is based on:
+ *	Scope Stack Allocation by Andreas Fredriksson, DICE
+ *  Conference: DICE Coders Day 2010 November
+ */
 #pragma once
 
 #include <new>
