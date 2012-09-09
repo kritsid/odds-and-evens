@@ -5,6 +5,8 @@
  */
 #pragma once
 
+#include <cstring>
+#include <cstdint>
 #include <new>
 #include <cassert>
 
@@ -80,9 +82,18 @@ public:
 		alloc.rewind(rewindPoint);
 	}
 
-	template<typename T> T* newObject(int n) {
+	template<typename T> T* newObject() {
 		Finalizer* f = allocFinalizerAndObject(sizeof(T));
-		T* result = new (objectAddress(f)) T(n);
+		T* result = new (objectAddress(f)) T();
+		f->fn = &destructorCall<T>;
+		f->chain = finalizerChain;
+		finalizerChain = f;
+		return result;
+	}
+
+	template<typename T> T* newObject(ScopeStack& scope) {
+		Finalizer* f = allocFinalizerAndObject(sizeof(T));
+		T* result = new (objectAddress(f)) T(scope);
 		f->fn = &destructorCall<T>;
 		f->chain = finalizerChain;
 		finalizerChain = f;
@@ -91,6 +102,10 @@ public:
 
 	template<typename T> T* newPOD() {
 		return new (alloc.allocate(sizeof(T))) T;
+	}
+
+	template<typename T> T* newPOD(ScopeStack& scope) {
+		return new (alloc.allocate(sizeof(T))) T(scope);
 	}
 
 	void* allocate(size_t size) {
