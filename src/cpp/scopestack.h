@@ -18,15 +18,11 @@ template<size_t alignment> size_t aligned_size(size_t size) {
 	return (size + (alignment - 1)) & ~(alignment - 1);
 }
 
-template<typename T> void destructorCall(void* ptr) {
-	static_cast<T*>(ptr)->~T();
-}
-
 
 class LinearAllocator {
 public:
 
-	static const unsigned char alignment = 16;
+	static const uint8 alignment = 16;
 
 	LinearAllocator(void* ptr, size_t size) 
 		: current_((uint8*)ptr)
@@ -60,11 +56,9 @@ private:
 
 
 
-struct Finalizer {
-	typedef void (*Function)(void*);
-	Function fn;
-	Finalizer* chain;
-};
+template<typename T> void destructorCall(void* ptr) {
+	static_cast<T*>(ptr)->~T();
+}
 
 
 class ScopeStack {
@@ -139,6 +133,13 @@ public:
 	}
 
 private:
+
+	struct Finalizer {
+		typedef void (*Function)(void*);
+		Function fn;
+		Finalizer* chain;
+	};
+
 	LinearAllocator& alloc;
 	void* rewindPoint;
 	Finalizer* finalizerChain;
@@ -154,5 +155,5 @@ private:
 	}
 
 	ScopeStack(const ScopeStack&);
-	ScopeStack operator=(const ScopeStack&);
+	ScopeStack& operator=(const ScopeStack&);
 };
