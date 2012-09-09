@@ -150,7 +150,7 @@ private:
 		return f;
 	}
 
-	void* objectAddress(Finalizer* f) {
+	void* objectAddress(const Finalizer* f) const {
 		return ((uint8*)f + aligned_size<LinearAllocator::alignment>(sizeof(Finalizer)));
 	}
 
