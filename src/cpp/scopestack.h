@@ -91,9 +91,27 @@ public:
 		return result;
 	}
 
+	template<typename T, typename P> T* newObject(P p) {
+		Finalizer* f = allocFinalizerAndObject(sizeof(T));
+		T* result = new (objectAddress(f)) T(p);
+		f->fn = &destructorCall<T>;
+		f->chain = finalizerChain;
+		finalizerChain = f;
+		return result;
+	}
+
 	template<typename T> T* newObject(ScopeStack& scope) {
 		Finalizer* f = allocFinalizerAndObject(sizeof(T));
 		T* result = new (objectAddress(f)) T(scope);
+		f->fn = &destructorCall<T>;
+		f->chain = finalizerChain;
+		finalizerChain = f;
+		return result;
+	}
+
+	template<typename T, typename P> T* newObject(ScopeStack& scope, P p) {
+		Finalizer* f = allocFinalizerAndObject(sizeof(T));
+		T* result = new (objectAddress(f)) T(scope, p);
 		f->fn = &destructorCall<T>;
 		f->chain = finalizerChain;
 		finalizerChain = f;
@@ -104,8 +122,16 @@ public:
 		return new (alloc.allocate(sizeof(T))) T;
 	}
 
+	template<typename T, typename P> T* newPOD(P p) {
+		return new (alloc.allocate(sizeof(T))) T(p);
+	}
+
 	template<typename T> T* newPOD(ScopeStack& scope) {
 		return new (alloc.allocate(sizeof(T))) T(scope);
+	}
+
+	template<typename T, typename P> T* newPOD(ScopeStack& scope, P p) {
+		return new (alloc.allocate(sizeof(T))) T(scope, p);
 	}
 
 	void* allocate(size_t size) {
@@ -126,4 +152,7 @@ private:
 	void* objectAddress(Finalizer* f) {
 		return ((uint8*)f + aligned_size<LinearAllocator::alignment>(sizeof(Finalizer)));
 	}
+
+	ScopeStack(const ScopeStack&);
+	ScopeStack operator=(const ScopeStack&);
 };
