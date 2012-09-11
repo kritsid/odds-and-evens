@@ -52,6 +52,9 @@ public:
 private:
 	uint8* current_;
 	uint8* end_;
+
+	LinearAllocator(const LinearAllocator&);
+	LinearAllocator& operator=(const LinearAllocator&);
 };
 
 
