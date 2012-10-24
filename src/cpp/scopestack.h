@@ -50,7 +50,7 @@ public:
 
 private:
 	unsigned char* current_;
-	unsigned char* end_;
+	unsigned char* const end_;
 
 	LinearAllocator(const LinearAllocator&);
 	LinearAllocator& operator=(const LinearAllocator&);
