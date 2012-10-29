@@ -11,7 +11,6 @@
 #include <cassert>
 
 
-typedef unsigned char uint8;
 
 
 template<size_t alignment> size_t aligned_size(size_t size) {
@@ -22,10 +21,10 @@ template<size_t alignment> size_t aligned_size(size_t size) {
 class LinearAllocator {
 public:
 
-	static const uint8 alignment = 16;
+	static const unsigned char alignment = 16;
 
 	LinearAllocator(void* ptr, size_t size) 
-		: current_((uint8*)ptr)
+		: current_((unsigned char*)ptr)
 		, end_(current_ + size) { 
 		memset(current_, 0, size); 
 	}
@@ -33,7 +32,7 @@ public:
 	uint8* allocate(size_t size) {
 		size_t asize = aligned_size<alignment>(size);
 		assert(current_ + asize <= end_);
-		uint8* result = current_; 
+		unsigned char* result = current_; 
 		current_ += asize;
 		return result;
 	}
@@ -41,7 +40,7 @@ public:
 	void rewind(void* ptr) { 
 		ptrdiff_t diff = (uintptr_t)current_ - (uintptr_t)ptr;
 		assert(diff >= 0);
-		current_ = (uint8*)ptr;
+		current_ = (unsigned char*)ptr;
 		memset(current_, 0, diff);
 	}
 
@@ -50,8 +49,8 @@ public:
 	}
 
 private:
-	uint8* current_;
-	uint8* end_;
+	unsigned char* current_;
+	unsigned char* const end_;
 
 	LinearAllocator(const LinearAllocator&);
 	LinearAllocator& operator=(const LinearAllocator&);
@@ -154,7 +153,7 @@ private:
 	}
 
 	void* objectAddress(const Finalizer* f) const {
-		return ((uint8*)f + aligned_size<LinearAllocator::alignment>(sizeof(Finalizer)));
+		return ((unsigned char*)f + aligned_size<LinearAllocator::alignment>(sizeof(Finalizer)));
 	}
 
 	ScopeStack(const ScopeStack&);
